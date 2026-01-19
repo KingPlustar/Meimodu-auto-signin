@@ -20,15 +20,14 @@ class ColorFormatter(logging.Formatter):
         message = super().format(record)
         
         # 只在控制台添加颜色
-        if getattr(record, '_color_enabled', False):
-            color_code = self.COLOR_CODES.get(record.levelno)
-            if color_code:
-                # 为levelname添加颜色
-                message = message.replace(
-                    f"{record.levelname}",
-                    f"{color_code}{record.levelname}{self.RESET_CODE}",
-                    1
-                )
+        color_code = self.COLOR_CODES.get(record.levelno)
+        if color_code:
+            # 为levelname添加颜色
+            message = message.replace(
+                f"{record.levelname}",
+                f"{color_code}{record.levelname}{self.RESET_CODE}",
+                1
+            )
         return message
 
 
@@ -46,11 +45,6 @@ def setup_logger() -> logging.Logger:
     handler = logging.StreamHandler()
     handler.setLevel(logging.INFO)
     handler.setFormatter(formatter)
-    
-    def color_filter(record: logging.LogRecord) -> bool:
-        setattr(record, '_color_enabled', True)
-        return True
-    handler.addFilter(color_filter)
     
     logs_dir = 'logs'
     if not os.path.exists(logs_dir):
