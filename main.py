@@ -21,7 +21,7 @@ def bai_piao(meimo: MeimoaiCrawler) -> None:
     if user_info is None:
         meimo.logger.warning("获取用户信息出错，取消电量对比")
     else:
-        meimo.logger.info(f"用户昵称：{user_info.nickname}，当前电量：{user_info.balance}。")
+        meimo.logger.info(f"用户昵称：{user_info.nickname}，当前电量：{user_info.balance}")
     
     # 执行签到
     sleep(random.uniform(1, 3))
@@ -39,7 +39,7 @@ def bai_piao(meimo: MeimoaiCrawler) -> None:
         meimo.logger.warning("获取用户信息出错，取消电量对比")
     else:
         delta_balance = user_info_after.balance - user_info.balance
-        meimo.logger.info(f"签到前电量：{user_info.balance}，签到后电量：{user_info_after.balance}，增加电量：{delta_balance}。")
+        meimo.logger.info(f"签到前电量：{user_info.balance}，签到后电量：{user_info_after.balance}，增加电量：{delta_balance}")
         if delta_balance <= 0:
             meimo.logger.warning("签到后电量未增加，检查是否重复签到")
     

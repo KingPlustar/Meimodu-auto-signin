@@ -98,7 +98,7 @@ class MeimoaiCrawler:
         :rtype: bool
         """
         if self.has_authorized():
-            self.logger.info("已存在有效的授权信息，跳过登录步骤。")
+            self.logger.info("已存在有效的授权信息，跳过登录步骤")
             return True
         
         response = self.api.login(self.session)
