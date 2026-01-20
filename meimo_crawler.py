@@ -5,7 +5,7 @@ from requests.exceptions import ConnectionError
 from config import API_CONFIG, REQUEST_CONFIG, TARGET_URL, UserConfig
 from meimo_logger import setup_logger
 from schemas.auth import LoginInfo, LoginData, UserData
-from schemas.resp import BaseResponse
+from schemas.resp import BaseResponse, MessageResponse
 
 
 class MeimoaiAPI:
@@ -64,8 +64,20 @@ class MeimoaiCrawler:
     
     
     def has_authorized(self) -> bool:
-        auth_header = self.session.headers.get("Authorization")
-        return auth_header is not None and auth_header.strip() != ""
+        custom_cookie = self.session.headers.get("Cookie")
+        return custom_cookie is not None and custom_cookie.strip() != ""
+    
+    def handle_unauthorized_response(self, message: MessageResponse, waiting_seconds: float | None = None) -> bool:
+        if message.code != 401:
+            return False
+        
+        if waiting_seconds and waiting_seconds > 0:
+            from time import sleep
+            sleep(waiting_seconds)
+        
+        self.session.headers.pop("Cookie", None)
+        self.logger.info("检测到未授权状态，尝试强制登录以获取授权信息")
+        return self.login(forced=True)
         
         
     def connect(self, apply_headers_config: bool = True, test_connection: bool = True) -> bool:
@@ -89,16 +101,19 @@ class MeimoaiCrawler:
         return False
         
         
-    def login(self) -> bool:
+    def login(self, forced: bool = False) -> bool:
         """
         登录以获取 token，并更新 session 的 Authorization 头。
         经测试自己抓包 Authorization 字段直接填上后貌似无法直接使用，可能和会话存储有关？
+        现在可以通过自己抓包 Cookie 跳过登录步骤。
 
+        :param forced: 是否强制登录，默认否
+        :type forced: bool, optional
         :return: 登录是否成功
         :rtype: bool
         """
-        if self.has_authorized():
-            self.logger.info("已存在有效的授权信息，跳过登录步骤")
+        if not forced and self.has_authorized():
+            self.logger.info("已存在授权信息，跳过登录步骤")
             return True
         
         response = self.api.login(self.session)
@@ -120,10 +135,12 @@ class MeimoaiCrawler:
         return True
             
             
-    def sign_in(self) -> bool:
+    def sign_in(self, reauthorized: bool = True) -> bool:
         """
         签到逻辑
 
+        :param reauthorized: 是否在检测到未授权时尝试重新登录，默认是
+        :type reauthorized: bool, optional
         :return: 签到是否成功
         :rtype: bool
         """
@@ -136,18 +153,24 @@ class MeimoaiCrawler:
         
         response_json = response.json()
         if response_json.get("code") != 200:
-            self.logger.error(f"签到失败，目标url：{response.url}，响应内容：\n{response.text}")
+            msg = MessageResponse.model_validate(response_json)
+            self.logger.error(f"签到失败，目标url：{response.url}，响应内容：\n{msg.model_dump_json(indent=2)}")
+            
+            if reauthorized and self.handle_unauthorized_response(msg, waiting_seconds=0.52):
+                return self.sign_in(reauthorized=False)
             return False
         
         sign_in_response = BaseResponse[bool].model_validate(response.json())
         self.logger.info(f"签到成功，响应内容：\n{sign_in_response.model_dump_json(indent=2)}")
         return True
-        
-        
-    def get_user_info(self) -> UserData | None:
+
+
+    def get_user_info(self, reauthorized: bool = True) -> UserData | None:
         """
         获取用户信息，用来计算签到后电量是否增加
 
+        :param reauthorized: 是否在检测到未授权时尝试重新登录，默认是
+        :type reauthorized: bool, optional
         :return: 返回为 None 说明获取失败
         :rtype: UserData | None
         """
@@ -159,7 +182,11 @@ class MeimoaiCrawler:
         
         response_json = response.json()
         if response_json.get("code") != 200:
-            self.logger.error(f"获取用户信息失败，目标url：{response.url}，响应内容：\n{response.text}")
+            msg = MessageResponse.model_validate(response_json)
+            self.logger.error(f"获取用户信息失败，目标url：{response.url}，响应内容：\n{msg.model_dump_json(indent=2)}")
+            
+            if reauthorized and self.handle_unauthorized_response(msg, waiting_seconds=0.48):
+                return self.get_user_info(reauthorized=False)
             return None
         
         user_info_response = BaseResponse[UserData].model_validate(response.json())
