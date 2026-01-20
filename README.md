@@ -1,6 +1,7 @@
 # Meimodu自动签到脚本
 
 [![GitHub Actions](https://img.shields.io/badge/GitHub_Actions-自动签到-blue?style=flat-square)](.github/workflows/auto-signin.yml)
+[![Python](https://img.shields.io/badge/Python-3.13%2B-blue?style=flat-square&logo=python)](https://www.python.org/)
 [![License](https://img.shields.io/badge/License-MIT-yellowgreen?style=flat-square)](LICENSE)
 
 一个基于Python的Meimodu/Meimoai网站自动签到工具，支持GitHub Actions自动定时执行。
@@ -23,9 +24,13 @@ pip install -r requirements.txt
 3. **配置环境变量**
 创建 `.env` 文件（可选，或直接在config.py中配置）：
 ```bash
-# 必填配置
+# 必填配置（二选一）
+# 方式一：使用邮箱密码登录
 EMAIL=your-account-email@example.com
 PASSWORD=your-password
+
+# 方式二：使用Cookie免登录（与邮箱密码二选一）
+COOKIE=your-cookie-value
 
 # 可选配置
 TARGET_URL=https://www.meimoaix.com/
@@ -46,11 +51,19 @@ python main.py
 
 | 变量名 | 必填 | 说明 |
 |--------|------|------|
-| `EMAIL` | ✅ | 账号邮箱 |
-| `PASSWORD` | ✅ | 账号密码 |
+| **认证方式一：邮箱密码登录** |
+| `EMAIL` | ✅ | 账号邮箱地址（与PASSWORD配合使用） |
+| `PASSWORD` | ✅ | 账号登录密码（与EMAIL配合使用） |
+| **认证方式二：Cookie免登录** |
+| `COOKIE` | ✅ | 网站登录凭证Cookie，可以通过浏览器开发者工具获取已登录Cookie值（与邮箱密码二选一即可） |
+| **通用配置** |
 | `TARGET_URL` | ❌ | 目标网站地址（可使用备用地址如 `https://www.meimoai114514.com/`） |
 
-> 请妥善保管你的账号密码，不要泄露给他人，不要在公共场合展示敏感信息，否则后果自负
+> **⚠重要提示**：请妥善保管你的账号信息，并注意以下事项：
+> 1. 认证方式只需选择一种（邮箱密码或Cookie），但如果选择了Cookie也可以填写邮箱密码，在Cookie失效时会尝试使用邮箱密码登录
+> 2. 不要泄露账号密码给他人
+> 3. 不要在公共场合展示敏感信息
+> 4. 如果使用了 `Cookie` 则不要随意登录 `TARGET_URL` 之外网址，这似乎会造成原来的登录信息失效（类似于抢号？），并且 `Cookie` 很可能会有时效性，所以如果想一劳永逸的话还是推荐填写账号密码
 
 ### 日志查看
 
