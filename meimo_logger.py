@@ -41,8 +41,16 @@ def setup_logger() -> logging.Logger:
         return logger
     
     logger.setLevel(logging.INFO)
-    formatter = ColorFormatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    file_formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    
+    from datetime import datetime, timedelta, timezone
+    beijing_tz = timezone(timedelta(hours=8)) # 北京时间 UTC+8
+    
+    formatter = ColorFormatter('%(asctime)s (UTC+8) - %(name)s - %(levelname)s - %(message)s')
+    file_formatter = logging.Formatter('%(asctime)s (UTC+8) - %(name)s - %(levelname)s - %(message)s')
+
+    time_converter = lambda *_: datetime.now(beijing_tz).timetuple()
+    formatter.converter = time_converter
+    file_formatter.converter = time_converter
 
     handler = logging.StreamHandler()
     handler.setLevel(logging.INFO)
@@ -52,8 +60,7 @@ def setup_logger() -> logging.Logger:
     if not os.path.exists(logs_dir):
         os.makedirs(logs_dir)
     
-    from datetime import datetime
-    log_file = f'{logs_dir}/signin_{datetime.now().strftime("%Y-%m-%d")}.log'
+    log_file = f'{logs_dir}/signin_{datetime.now(beijing_tz).strftime("%Y-%m-%d")}.log'
     
     file_handler = logging.FileHandler(log_file, encoding="utf-8")
     file_handler.setLevel(logging.INFO)
