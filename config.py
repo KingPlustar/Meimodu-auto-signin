@@ -1,10 +1,14 @@
 import os
 from urllib.parse import urljoin
+from dotenv import load_dotenv
+
+load_dotenv()
 
 
 class UserConfig:
     EMAIL = os.getenv("EMAIL") or ""
     PASSWORD = os.getenv("PASSWORD") or ""
+    COOKIE = os.getenv("COOKIE") or ""
 
 
 TARGET_URL = os.getenv("TARGET_URL") or "https://www.sexyai.top/" # Meimodu官网，可更换为其他域名，如 https://www.meimoai8.com/
@@ -16,6 +20,7 @@ REQUEST_CONFIG = {
     "headers": {
         "Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6",
         "Referer": TARGET_URL,
+        "Cookie": UserConfig.COOKIE,
     }
 }
 
