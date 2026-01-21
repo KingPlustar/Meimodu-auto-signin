@@ -1,3 +1,6 @@
+from time import sleep
+from typing import Callable
+
 import cloudscraper
 from requests import Response, Session
 from requests.exceptions import ConnectionError
@@ -47,6 +50,19 @@ class MeimoaiAPI:
         return response
 
 
+def delayed_call[T](func: Callable[[], T], delay_before: float = 0, delay_after: float = 0) -> T:
+    """用来在调用API前后添加延时（秒）"""
+    if delay_before > 0:
+        sleep(delay_before)
+    
+    result = func()
+    
+    if delay_after > 0:
+        sleep(delay_after)
+    
+    return result
+
+
 class MeimoaiCrawler:
     def __init__(self) -> None:
         self.api = MeimoaiAPI()
@@ -60,23 +76,19 @@ class MeimoaiCrawler:
         )
         
         self.logger = setup_logger()
-        self.default_headers: dict = {k: v for k, v in REQUEST_CONFIG.get("headers", {}).items() if v}
+        self.default_headers = {k: v for k, v in REQUEST_CONFIG.get("headers", {}).items() if v}
     
     
     def has_authorized(self) -> bool:
         custom_cookie = self.session.headers.get("Cookie")
         return custom_cookie is not None and custom_cookie.strip() != ""
     
-    def handle_unauthorized_response(self, message: MessageResponse, waiting_seconds: float | None = None) -> bool:
+    
+    def handle_unauthorized_response(self, message: MessageResponse) -> bool:
         if message.code != 401:
             return False
         
-        if waiting_seconds and waiting_seconds > 0:
-            from time import sleep
-            sleep(waiting_seconds)
-        
-        self.session.headers.pop("Cookie", None)
-        self.logger.info("检测到未授权状态，尝试强制登录以获取授权信息")
+        self.logger.info("检测到未授权状态，尝试登录以获取授权信息")
         return self.login(forced=True)
         
         
@@ -104,7 +116,7 @@ class MeimoaiCrawler:
     def login(self, forced: bool = False) -> bool:
         """
         登录以获取 token，并更新 session 的 Authorization 头。
-        经测试自己抓包 Authorization 字段直接填上后貌似无法直接使用，可能和会话存储有关？
+        ~~经测试自己抓包 Authorization 字段直接填上后貌似无法直接使用，可能和会话存储有关？~~
         现在可以通过自己抓包 Cookie 跳过登录步骤。
 
         :param forced: 是否强制登录，默认否
@@ -112,7 +124,9 @@ class MeimoaiCrawler:
         :return: 登录是否成功
         :rtype: bool
         """
-        if not forced and self.has_authorized():
+        if forced:
+            self.session.headers.pop("Cookie", None)
+        elif self.has_authorized():
             self.logger.info("已存在授权信息，跳过登录步骤")
             return True
         
@@ -156,7 +170,11 @@ class MeimoaiCrawler:
             msg = MessageResponse.model_validate(response_json)
             self.logger.error(f"签到失败，目标url：{response.url}，响应内容：\n{msg.model_dump_json(indent=2)}")
             
-            if reauthorized and self.handle_unauthorized_response(msg, waiting_seconds=0.52):
+            if reauthorized and delayed_call(
+                lambda: self.handle_unauthorized_response(msg), 
+                delay_before=0.52, 
+                delay_after=0.25
+            ):
                 return self.sign_in(reauthorized=False)
             return False
         
@@ -185,7 +203,11 @@ class MeimoaiCrawler:
             msg = MessageResponse.model_validate(response_json)
             self.logger.error(f"获取用户信息失败，目标url：{response.url}，响应内容：\n{msg.model_dump_json(indent=2)}")
             
-            if reauthorized and self.handle_unauthorized_response(msg, waiting_seconds=0.48):
+            if reauthorized and delayed_call(
+                lambda: self.handle_unauthorized_response(msg), 
+                delay_before=0.48, 
+                delay_after=0.24
+            ):
                 return self.get_user_info(reauthorized=False)
             return None
         
