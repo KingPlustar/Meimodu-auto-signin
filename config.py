@@ -2,6 +2,8 @@ import os
 from urllib.parse import urljoin
 from dotenv import load_dotenv
 
+from schemas.config import ApiConfig, RequestConfig
+
 load_dotenv()
 
 
@@ -14,7 +16,7 @@ class UserConfig:
 TARGET_URL = os.getenv("TARGET_URL") or "https://www.sexyai.top/" # Meimodu官网，可更换为其他域名，如 https://www.meimoai8.com/
 
 
-REQUEST_CONFIG = {
+REQUEST_CONFIG: RequestConfig = {
     "timeout": 10,
     # "retries": 3, # 设置重试次数似乎会导致 cloudscraper 处理挑战失败
     "headers": {
@@ -25,7 +27,7 @@ REQUEST_CONFIG = {
 }
 
 
-API_CONFIG = {
+API_CONFIG: ApiConfig = {
     "base_url": urljoin(TARGET_URL, "/api"),
     "endpoints": {
         "login": "/user/login",
