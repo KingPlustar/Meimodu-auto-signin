@@ -33,6 +33,7 @@ jobs:
         EMAIL: ${{ secrets.EMAIL }}
         PASSWORD: ${{ secrets.PASSWORD }}
         TARGET_URL: ${{ secrets.TARGET_URL }}
+        COOKIE: ${{ secrets.COOKIE }}
       run: |
         python main.py
 
