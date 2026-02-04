@@ -48,7 +48,7 @@ def setup_logger() -> logging.Logger:
     formatter = ColorFormatter('%(asctime)s (UTC+8) - %(name)s - %(levelname)s - %(message)s')
     file_formatter = logging.Formatter('%(asctime)s (UTC+8) - %(name)s - %(levelname)s - %(message)s')
 
-    time_converter = lambda *_: datetime.now(beijing_tz).timetuple()
+    time_converter = lambda seconds: datetime.fromtimestamp(seconds, beijing_tz).timetuple()
     formatter.converter = time_converter
     file_formatter.converter = time_converter
 
