@@ -1,4 +1,4 @@
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel, TypeAdapter, field_validator
 
 from config import UserConfig
 
@@ -22,14 +22,17 @@ class LoginData(BaseModel):
     @field_validator('nickname', mode='after')
     @classmethod
     def anonymous(cls, name: str) -> str:
-        if UserConfig.ANONYMOUS in ('1', 'true'):
-            name_len = len(name)
-            if name_len <= 1:
-                return '*'
-            if name_len == 2:
-                return name[0] + '*'
-            return name[0] + ("*" * (name_len - 2)) + name[-1]
-        return name
+        try:
+            if TypeAdapter(bool).validate_strings(UserConfig.ANONYMOUS):
+                name_len = len(name)
+                if name_len <= 1:
+                    return '*'
+                if name_len == 2:
+                    return name[0] + '*'
+                return name[0] + ("*" * (name_len - 2)) + name[-1]
+            return name
+        except Exception:
+            return name
 
 
 class UserData(BaseModel):
