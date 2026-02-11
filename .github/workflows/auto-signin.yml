@@ -34,6 +34,7 @@ jobs:
         PASSWORD: ${{ secrets.PASSWORD }}
         TARGET_URL: ${{ secrets.TARGET_URL }}
         COOKIE: ${{ secrets.COOKIE }}
+        ANONYMOUS: ${{ secrets.ANONYMOUS }}
       run: |
         python main.py
 

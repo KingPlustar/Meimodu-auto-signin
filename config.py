@@ -8,9 +8,11 @@ load_dotenv()
 
 
 class UserConfig:
-    EMAIL = os.getenv("EMAIL") or ""
-    PASSWORD = os.getenv("PASSWORD") or ""
-    COOKIE = os.getenv("COOKIE") or ""
+    EMAIL = os.getenv("EMAIL", "")
+    PASSWORD = os.getenv("PASSWORD", "")
+    COOKIE = os.getenv("COOKIE", "")
+    
+    ANONYMOUS = os.getenv("ANONYMOUS", "")
 
 
 TARGET_URL = os.getenv("TARGET_URL") or "https://www.sexyai.top/" # Meimodu官网，可更换为其他域名，如 https://www.meimoai8.com/
