@@ -1,7 +1,23 @@
-from pydantic import BaseModel, TypeAdapter, field_validator
+from typing import Annotated
+from pydantic import AfterValidator, BaseModel, TypeAdapter
 
 from config import UserConfig
 
+
+def anonymous(name: str) -> str:
+    try:
+        if not TypeAdapter(bool).validate_strings(UserConfig.ANONYMOUS):
+            return name
+        
+        name_len = len(name)
+        if name_len <= 1:
+            return '*'
+        if name_len == 2:
+            return name[0] + '*'
+        return name[0] + ('*' * (name_len - 2)) + name[-1]
+    except Exception:
+        return name
+    
 
 class LoginInfo(BaseModel):
     username: str
@@ -15,28 +31,13 @@ class LoginData(BaseModel):
     token: str
     id: int
     email: str
-    nickname: str
+    nickname: Annotated[str, AfterValidator(anonymous)]
     gender: int
     password: str
-
-    @field_validator('nickname', mode='after')
-    @classmethod
-    def anonymous(cls, name: str) -> str:
-        try:
-            if TypeAdapter(bool).validate_strings(UserConfig.ANONYMOUS):
-                name_len = len(name)
-                if name_len <= 1:
-                    return '*'
-                if name_len == 2:
-                    return name[0] + '*'
-                return name[0] + ("*" * (name_len - 2)) + name[-1]
-            return name
-        except Exception:
-            return name
 
 
 class UserData(BaseModel):
     id: int
     email: str
-    nickname: str
+    nickname: Annotated[str, AfterValidator(anonymous)]
     balance: float # 电量余额
