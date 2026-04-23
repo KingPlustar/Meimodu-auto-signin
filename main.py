@@ -4,16 +4,16 @@ from time import sleep
 from meimo_crawler import MeimoaiCrawler
 
 
-def bai_piao(meimo: MeimoaiCrawler) -> None:
+def bai_piao(meimo: MeimoaiCrawler) -> bool:
     if not meimo.connect():
         meimo.logger.error("连接出错，程序终止。")
-        return
+        return False
     
     # 进行登录获取 token
     sleep(random.uniform(1, 3))
     if not meimo.login():
         meimo.logger.error("登录出错，程序终止。")
-        return
+        return False
     
     # 获取用户信息，记录当前电量
     sleep(random.uniform(1, 2))
@@ -27,7 +27,7 @@ def bai_piao(meimo: MeimoaiCrawler) -> None:
     sleep(random.uniform(1, 3))
     if not meimo.sign_in():
         meimo.logger.error("签到出错，程序终止。")
-        return
+        return False
     
     # 再次获取用户信息，检查电量是否增加
     sleep(random.uniform(1, 2))
@@ -44,6 +44,7 @@ def bai_piao(meimo: MeimoaiCrawler) -> None:
             meimo.logger.warning("签到后电量未增加，检查是否重复签到")
     
     meimo.logger.info("程序执行完毕。")
+    return True
 
 
 if __name__ == "__main__":
@@ -51,7 +52,9 @@ if __name__ == "__main__":
     meimo.logger.info("程序开始执行")
     
     try:
-        bai_piao(meimo)
+        if not bai_piao(meimo):
+            exit(1)
     except Exception as e:
         meimo.logger.error(f"程序执行异常终止，可能是程序已过时！")
         meimo.logger.exception(e)
+        exit(1)
