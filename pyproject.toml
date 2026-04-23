@@ -1,0 +1,12 @@
+[project]
+name = "meimodu-auto-signin"
+version = "0.1.0"
+description = "Meimodu 网址自动签到"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "cloudscraper>=1.2.71",
+    "dotenv>=0.9.9",
+    "pydantic>=2.13.3",
+    "requests>=2.33.1",
+]
