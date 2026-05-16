@@ -15,7 +15,7 @@ class UserConfig:
     ANONYMOUS = os.getenv("ANONYMOUS", "")
 
 
-PERMANENT_URL = "https://www.sexyai.ai/" # 长期地址，从 top 变为 ai
+PERMANENT_URL = "https://www.sexyai.ai/" # 长期地址，自Apr 18起从`.top`更改为`.ai`
 TARGET_URL = os.getenv("TARGET_URL") or PERMANENT_URL # Meimodu官网，可更换为其他域名，如 https://www.meimoai8.com/
 
 
