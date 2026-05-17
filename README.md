@@ -16,7 +16,14 @@
 
 1. **克隆项目**
 
-2. **安装依赖**
+2. **安装依赖**（二选一）
+
+使用 uv：
+```bash
+uv sync
+```
+
+或使用 pip：
 ```bash
 pip install -r requirements.txt
 ```
@@ -29,7 +36,7 @@ pip install -r requirements.txt
 EMAIL=your-account-email@example.com
 PASSWORD=your-password
 
-# 方式二：使用Cookie免登录（与邮箱密码二选一）
+# 方式二：使用Cookie免登录（与邮箱密码二选一，目前获取麻烦且规则不明，不推荐）
 COOKIE=your-cookie-value
 
 # 可选配置
@@ -64,7 +71,7 @@ python main.py
 > 1. 认证方式只需选择一种（邮箱密码或Cookie），但如果选择了Cookie也可以填写邮箱密码，在Cookie失效时会尝试使用邮箱密码登录
 > 2. 不要泄露账号密码给他人
 > 3. 不要在公共场合展示敏感信息
-> 4. 如果使用了 `Cookie` 则不要随意登录 `TARGET_URL` 之外的Meimodu网址，这似乎会造成原来的登录信息失效（类似于抢号？），并且 `Cookie` 很可能会有时效性，所以如果想一劳永逸的话还是推荐填写账号密码
+> 4. 60天未更新的仓库会被停止使用 Actions
 
 ### 日志查看
 
