@@ -1,3 +1,4 @@
+from email import message
 import logging
 import os
 from typing import override
@@ -20,9 +21,12 @@ class ColorFormatter(logging.Formatter):
     def format(self, record: logging.LogRecord) -> str:
         # 添加控制台颜色
         color_code = self.COLOR_CODES.get(record.levelno)
+        levelname = record.levelname
         if color_code:
             record.levelname = f"{color_code}{record.levelname}{self.RESET_CODE}"
-        return super().format(record)
+        message = super().format(record)
+        record.levelname = levelname # 还原 levelname，防止影响其他处理器
+        return message
 
 
 def setup_logger() -> logging.Logger:
