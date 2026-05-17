@@ -52,8 +52,7 @@ if __name__ == "__main__":
     meimo.logger.info("程序开始执行")
     
     try:
-        if not bai_piao(meimo):
-            exit(1)
+        exit(0 if bai_piao(meimo) else 1)
     except Exception as e:
         meimo.logger.error(f"程序执行异常终止，可能是程序已过时！")
         meimo.logger.exception(e)
