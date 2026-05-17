@@ -18,19 +18,11 @@ class ColorFormatter(logging.Formatter):
     
     @override
     def format(self, record: logging.LogRecord) -> str:
-        # 调用父类格式化
-        message = super().format(record)
-        
-        # 只在控制台添加颜色
+        # 添加控制台颜色
         color_code = self.COLOR_CODES.get(record.levelno)
         if color_code:
-            # 为levelname添加颜色
-            message = message.replace(
-                f"{record.levelname}",
-                f"{color_code}{record.levelname}{self.RESET_CODE}",
-                1
-            )
-        return message
+            record.levelname = f"{color_code}{record.levelname}{self.RESET_CODE}"
+        return super().format(record)
 
 
 def setup_logger() -> logging.Logger:
@@ -69,4 +61,3 @@ def setup_logger() -> logging.Logger:
     logger.addHandler(handler)
     logger.addHandler(file_handler)
     return logger
-    
