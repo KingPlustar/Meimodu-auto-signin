@@ -1,5 +1,5 @@
+from collections.abc import Callable
 from time import sleep
-from typing import Callable
 
 import cloudscraper
 from requests import Response, Session
@@ -7,7 +7,7 @@ from requests.exceptions import ConnectionError
 
 from config import API_CONFIG, REQUEST_CONFIG, TARGET_URL, UserConfig
 from meimo_logger import setup_logger
-from schemas.auth import LoginInfo, LoginData, UserData
+from schemas.auth import LoginData, LoginInfo, UserData
 from schemas.resp import DataResponse, MsgResponse, parse_resp
 
 
@@ -48,6 +48,9 @@ class MeimoaiAPI:
         response = self.session.post(url, timeout=self.timeout)
         
         return response
+    
+    def test_connection(self, target_url: str) -> Response:
+        return self.session.get(target_url, timeout=self.timeout)
 
 
 def delayed_call[T](func: Callable[[], T], delay_before: float = 0, delay_after: float = 0) -> T:
@@ -97,7 +100,7 @@ class MeimoaiCrawler:
             return True
 
         try:
-            response = self.session.get(TARGET_URL, timeout=self.api.timeout)
+            response = self.api.test_connection(TARGET_URL)
             self.logger.info(f"成功连接到 {TARGET_URL}")
 
             if response.status_code == 200:
@@ -199,5 +202,5 @@ class MeimoaiCrawler:
                 ):
                     return self.get_user_info(reauthorized=False)
             case DataResponse():
-                self.logger.info(f"获取用户信息成功")
+                self.logger.info("获取用户信息成功")
                 return resp.data
