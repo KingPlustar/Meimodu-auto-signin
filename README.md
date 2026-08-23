@@ -4,7 +4,7 @@
 [![Python](https://img.shields.io/badge/Python-3.13%2B-blue?style=flat-square&logo=python)](https://www.python.org/)
 [![License](https://img.shields.io/badge/License-MIT-yellowgreen?style=flat-square)](LICENSE)
 
-一个基于Python的Meimodu/Meimoai网站自动签到工具，支持GitHub Actions自动定时执行。
+一个基于Python的Meimodu/Meimoai网站自动签到工具，支持GitHub Actions自动定时执行。~~**蚊子腿再小也是肉**~~
 
 ## 功能摘要
 
@@ -45,6 +45,10 @@ TARGET_URL=https://www.meimoaix.com/
 
 4. **运行签到**
 ```bash
+# 使用 uv（推荐）
+uv run main.py
+
+# 或者进入虚拟环境或使用全局环境
 python main.py
 ```
 
@@ -58,7 +62,7 @@ python main.py
 
 | 变量名 | 必填 | 说明 |
 |--------|------|------|
-| **认证方式一：邮箱密码登录** |
+| **认证方式一：邮箱密码登录（推荐）** |
 | `EMAIL` | ✅ | 账号邮箱地址（与PASSWORD配合使用） |
 | `PASSWORD` | ✅ | 账号登录密码（与EMAIL配合使用） |
 | **认证方式二：Cookie免登录** |
